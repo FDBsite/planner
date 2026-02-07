@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Planner</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">Planner</div>
+    <div class="actions">
+      <button id="newTaskButton" class="btn primary" hidden>+ New Task</button>
+      <button id="manageUsersBtn" class="btn" hidden>Utenti</button>
+      <a id="signInLink" class="link" href="#">Accedi</a>
+      <span id="userName" class="user-name" hidden></span>
+      <a id="logoutLink" class="link" href="#" hidden>Logout</a>
+      <button id="themeToggle" class="btn icon" aria-label="Attiva modalità notturna">🌙</button>
+    </div>
+  </header>
+  <main class="content">
+    <section id="completedSection" class="completed-section" hidden>
+      <div class="completed-header">
+        <h2>✓ Attività completate <span id="completedCount">0</span></h2>
+      </div>
+      <div id="completedList" class="completed-list">
+        <!-- Completed tasks go here -->
+      </div>
+    </section>
+    <div class="columns">
+      <section class="column" aria-labelledby="todo-title">
+        <h2 id="todo-title">To Do</h2>
+        <div id="todoList" class="list empty">Nessuna task</div>
+      </section>
+      <section class="column" aria-labelledby="progress-title">
+        <h2 id="progress-title">In Progress</h2>
+        <div id="progressList" class="list empty">Nessuna task</div>
+      </section>
+    </div>
+  </main>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <!-- Modale Sign In -->
+  <div class="modal-backdrop" id="signinBackdrop" hidden></div>
+  <div class="modal" id="signinModal" hidden role="dialog" aria-labelledby="signinTitle" aria-modal="true">
+    <div class="modal-header">
+      <h3 id="signinTitle">Sign In</h3>
+      <button class="btn icon" data-close="signin">✕</button>
+    </div>
+    <form id="signinForm" class="modal-body">
+      <label>Nome Cognome
+        <input type="text" name="fullName" required placeholder="Nome Cognome">
+      </label>
+      <label>Password
+        <div class="password-field">
+          <input type="password" name="password" required>
+          <button type="button" class="toggle-password" aria-label="Mostra password">👁</button>
+        </div>
+      </label>
+      <div class="form-error" id="signinError" aria-live="polite"></div>
+      <div class="modal-actions">
+        <button type="submit" class="btn primary">Accedi</button>
+        <button type="button" class="btn" data-close="signin">Annulla</button>
+      </div>
+      <p class="modal-footnote">Ti vuoi registrare? <a href="#" id="signupLink">Sign Up</a></p>
+    </form>
+  </div>
+
+  <!-- Modale Users List -->
+  <div class="modal-backdrop" id="usersBackdrop" hidden></div>
+  <div class="modal" id="usersModal" hidden role="dialog" aria-labelledby="usersTitle" aria-modal="true">
+    <div class="modal-header">
+      <h3 id="usersTitle">Gestione Utenti</h3>
+      <button class="btn icon" data-close="users">✕</button>
+    </div>
+    <div class="modal-body">
+      <ul id="usersList" class="users-list">
+        <!-- JS populates this -->
+      </ul>
+    </div>
+    <div class="modal-actions">
+        <button type="button" class="btn" data-close="users">Chiudi</button>
+    </div>
+  </div>
+
+  <!-- Modale Admin Auth -->
+  <div class="modal-backdrop" id="adminAuthBackdrop" hidden></div>
+  <div class="modal" id="adminAuthModal" hidden role="dialog" aria-labelledby="adminAuthTitle" aria-modal="true">
+    <div class="modal-header">
+      <h3 id="adminAuthTitle">Conferma Eliminazione</h3>
+      <button class="btn icon" data-close="adminAuth">✕</button>
+    </div>
+    <form id="adminAuthForm" class="modal-body">
+      <p>Inserisci la password amministratore per confermare l'eliminazione.</p>
+      <label>Password
+        <input type="password" name="adminPassword" required>
+      </label>
+      <div class="form-error" id="adminAuthError" aria-live="polite"></div>
+      <div class="modal-actions">
+        <button type="submit" class="btn danger">Elimina</button>
+        <button type="button" class="btn" data-close="adminAuth">Annulla</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Modale Sign Up -->
+  <div class="modal-backdrop" id="signupBackdrop" hidden></div>
+  <div class="modal" id="signupModal" hidden role="dialog" aria-labelledby="signupTitle" aria-modal="true">
+    <div class="modal-header">
+      <h3 id="signupTitle">Sign Up</h3>
+      <button class="btn icon" data-close="signup">✕</button>
+    </div>
+    <form id="signupForm" class="modal-body">
+      <label>Nome e Cognome
+        <input type="text" name="fullName" required placeholder="Nome e Cognome">
+      </label>
+      <label>Password
+        <div class="password-field">
+          <input type="password" name="password" required minlength="6">
+          <button type="button" class="toggle-password" aria-label="Mostra password">👁</button>
+        </div>
+      </label>
+      <label>Conferma Password
+        <div class="password-field">
+          <input type="password" name="confirmPassword" required minlength="6">
+          <button type="button" class="toggle-password" aria-label="Mostra password">👁</button>
+        </div>
+      </label>
+      <div class="form-error" id="signupError" aria-live="polite"></div>
+      <div class="modal-actions">
+        <button type="submit" class="btn primary">Registrati</button>
+        <button type="button" class="btn" data-close="signup">Annulla</button>
+      </div>
+    </form>
+  </div>
+  <!-- Modale New Task -->
+  <div class="modal-backdrop" id="newTaskBackdrop" hidden></div>
+  <div class="modal" id="newTaskModal" hidden role="dialog" aria-labelledby="newTaskTitle" aria-modal="true">
+    <div class="modal-header">
+      <h3 id="newTaskTitle">New Task</h3>
+      <button class="btn icon" data-close="newtask">✕</button>
+    </div>
+    <form id="newTaskForm" class="modal-body">
+      <label>Task Title *
+        <input type="text" name="title" required placeholder="Enter task title">
+      </label>
+      <label>Task Description
+        <textarea name="description" rows="4" placeholder="Enter task description"></textarea>
+      </label>
+      <div class="grid-2">
+        <label>Status
+          <select name="status" required>
+            <option value="To Do">To Do</option>
+          </select>
+        </label>
+        <label>Priority
+          <select name="priority" required>
+            <option value="" selected>Scegli...</option>
+            <option value="Bassa">Bassa</option>
+            <option value="Media">Media</option>
+            <option value="Alta">Alta</option>
+          </select>
+        </label>
+      </div>
+      <label>Assign to
+        <select name="assignTo" id="assignToSelect">
+          <option value="" selected>Me</option>
+        </select>
+      </label>
+      <label>Due Date
+
+        <input type="date" name="dueDate" placeholder="gg/mm/aaaa">
+      </label>
+      <div class="form-error" id="newTaskError" aria-live="polite"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn" data-close="newtask">Torna</button>
+        <button type="submit" class="btn primary">Crea Task</button>
+      </div>
+    </form>
+  </div>
+  <!-- Modale Edit Task -->
+  <div class="modal-backdrop" id="editTaskBackdrop" hidden></div>
+  <div class="modal" id="editTaskModal" hidden role="dialog" aria-labelledby="editTaskTitle" aria-modal="true">
+    <div class="modal-header">
+      <h3 id="editTaskTitle">Edit Task</h3>
+      <button class="btn icon" data-close="edittask">✕</button>
+    </div>
+    <form id="editTaskForm" class="modal-body">
+      <input type="hidden" name="taskId">
+      <label>Task Title *
+        <input type="text" name="title" required>
+      </label>
+      <label>Task Description
+        <textarea name="description" rows="4"></textarea>
+      </label>
+      <div class="grid-2">
+        <label>Status
+          <select name="status" required>
+            <option value="To Do">To Do</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </label>
+        <label>Priority
+          <select name="priority" required>
+            <option value="Low">🟢 Low</option>
+            <option value="Medium">🟡 Medium</option>
+            <option value="High">🔴 High</option>
+          </select>
+        </label>
+      </div>
+      <label>Due Date
+        <input type="date" name="dueDate">
+      </label>
+      <div class="form-error" id="editTaskError" aria-live="polite"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn" data-close="edittask">Annulla</button>
+        <button type="submit" class="btn primary">Salva Modifiche</button>
+      </div>
+    </form>
+  </div>
+
+
+</body>
+</html>
