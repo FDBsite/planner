@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Planner - Accesso Richiesto</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f4f4f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .lock-container {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+    }
+    h1 { margin-bottom: 1.5rem; color: #333; }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 1rem;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover { background-color: #0056b3; }
+    .error { color: red; margin-bottom: 1rem; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <div class="lock-container">
+    <h1>Planner Locked</h1>
+    <form id="lockForm">
+      <div id="error" class="error" hidden></div>
+      <input type="password" id="password" placeholder="Inserisci password app" required>
+      <button type="submit">Sblocca</button>
+    </form>
+  </div>
+  <script>
+    document.getElementById('lockForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const pwd = document.getElementById('password').value;
+      const err = document.getElementById('error');
+      
+      try {
+        const res = await fetch('/api/unlock', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ password: pwd })
+        });
+        
+        if (res.ok) {
+          window.location.reload();
+        } else {
+          const data = await res.json();
+          err.textContent = data.error || 'Password errata';
+          err.hidden = false;
+        }
+      } catch (e) {
+        err.textContent = 'Errore di connessione';
+        err.hidden = false;
+      }
+    });
+  </script>
+</body>
+</html>

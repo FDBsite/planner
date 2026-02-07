@@ -7,6 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('PLANNER_SECRET', 'dev-secret')
+APP_PASSWORD = os.environ.get('APP_PASSWORD', 'Planner2026$%&')
 
 # Configuration
 DATABASE_URL = os.environ.get('DATABASE_URL')
@@ -161,9 +162,42 @@ def close_connection(exception):
     if db is not None:
         db.close()
 
+@app.before_request
+def check_app_lock():
+    # Allow static resources
+    if request.path.startswith('/static/'):
+        return None
+    
+    # Allow unlock endpoint
+    if request.path == '/api/unlock':
+        return None
+        
+    # Check if app is unlocked
+    if not session.get('app_unlocked'):
+        # If accessing root, render lock page
+        if request.path == '/':
+            return render_template('lock.html')
+        # Block API calls
+        if request.path.startswith('/api/'):
+            return jsonify({"error": "App bloccata. Inserire password."}), 403
+            
+        # For any other route, also show lock page (or redirect to /)
+        return render_template('lock.html')
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.post('/api/unlock')
+def api_unlock():
+    data = request.get_json(silent=True) or {}
+    pwd = data.get('password')
+    
+    if pwd == APP_PASSWORD:
+        session['app_unlocked'] = True
+        return jsonify({"message": "App sbloccata"}), 200
+    
+    return jsonify({"error": "Password errata"}), 401
 
 @app.post('/api/signup')
 def api_signup():
