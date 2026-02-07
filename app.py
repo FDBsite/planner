@@ -1,4 +1,5 @@
 from flask import Flask, render_template, g, request, jsonify, session
+from werkzeug.exceptions import HTTPException
 import sqlite3
 import os
 import psycopg2
