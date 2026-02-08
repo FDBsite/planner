@@ -234,6 +234,10 @@ def api_signup():
     if not first: first = '-'
     if not last: last = '-'
 
+    # Diagnostic check for Vercel environment
+    if not IS_POSTGRES and os.environ.get('VERCEL'):
+        return jsonify({"error": "Configurazione Errata: DATABASE_URL mancante su Vercel"}), 500
+
     pwd_hash = generate_password_hash(pwd)
     try:
         db = get_db()
@@ -244,6 +248,8 @@ def api_signup():
         db.commit()
     except (sqlite3.IntegrityError, psycopg2.IntegrityError):
         return jsonify({"error": "Utente già esistente"}), 409
+    except Exception as e:
+        return jsonify({"error": f"Errore Database: {str(e)}"}), 500
 
     return jsonify({"message": "Registrazione completata"}), 201
 

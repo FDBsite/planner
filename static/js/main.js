@@ -593,7 +593,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           const text = await res.text();
           console.error('Non-JSON response:', text);
-          throw new Error('Risposta server non valida: ' + (res.statusText || res.status));
+          // Strip HTML tags to get readable text
+          const tmp = document.createElement("DIV");
+          tmp.innerHTML = text;
+          const cleanText = tmp.textContent || tmp.innerText || "";
+          throw new Error('Server Error: ' + cleanText.substring(0, 100));
         }
 
         if (!res.ok) {
