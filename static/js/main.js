@@ -580,23 +580,34 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     try {
-      const res = await fetch('/api/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        signupError.textContent = data.error || 'Errore di registrazione';
-        return;
+        const res = await fetch('/api/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        
+        let data;
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+          data = await res.json();
+        } else {
+          const text = await res.text();
+          console.error('Non-JSON response:', text);
+          throw new Error('Risposta server non valida: ' + (res.statusText || res.status));
+        }
+
+        if (!res.ok) {
+          signupError.textContent = data.error || 'Errore di registrazione';
+          return;
+        }
+        closeModal(signupModal, signupBackdrop);
+        alert('Registrazione completata. Ora effettua il login.');
+        openModal(signinModal, signinBackdrop);
+      } catch (err) {
+        console.error('Signup error:', err);
+        signupError.textContent = err.message || 'Errore di rete';
       }
-      closeModal(signupModal, signupBackdrop);
-      alert('Registrazione completata. Ora effettua il login.');
-      openModal(signinModal, signinBackdrop);
-    } catch (err) {
-      signupError.textContent = 'Errore di rete';
-    }
-  });
+    });
 
   // Submit Sign In
   if (signinForm) signinForm.addEventListener('submit', async (e) => {

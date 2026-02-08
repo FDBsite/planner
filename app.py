@@ -202,6 +202,13 @@ def api_unlock():
 
 @app.post('/api/signup')
 def api_signup():
+    # Ensure DB is initialized (create tables if not exist)
+    try:
+        init_db()
+    except Exception as e:
+        print(f"DB Init Error: {e}")
+        # Continue, maybe it's just a connection glitch or already exists issue that will be caught later
+    
     data = request.get_json(silent=True) or {}
     full_name = (data.get('fullName') or '').strip()
     pwd = (data.get('password') or '')
