@@ -4,7 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Planner</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=2">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
   <header class="app-header">
@@ -38,7 +39,7 @@
       </section>
     </div>
   </main>
-  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/main.js') }}?v=2"></script>
   <!-- Modale Sign In -->
   <div class="modal-backdrop" id="signinBackdrop" hidden></div>
   <div class="modal" id="signinModal" hidden role="dialog" aria-labelledby="signinTitle" aria-modal="true">

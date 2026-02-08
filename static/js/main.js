@@ -605,7 +605,7 @@ document.addEventListener('DOMContentLoaded', () => {
         openModal(signinModal, signinBackdrop);
       } catch (err) {
         console.error('Signup error:', err);
-        signupError.textContent = err.message || 'Errore di rete';
+        signupError.textContent = err.message || 'Errore di connessione (v2)';
       }
     });
 
