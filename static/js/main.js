@@ -75,20 +75,17 @@ document.addEventListener('DOMContentLoaded', () => {
     modal.hidden = true;
     backdrop.hidden = true;
     document.body.style.overflow = '';
-    // Reset position on close
     modal.style.top = '';
     modal.style.left = '';
     modal.style.transform = '';
     modal.style.margin = '';
   }
 
-  // Draggable Modals
   document.querySelectorAll('.modal').forEach(modal => {
     const header = modal.querySelector('.modal-header');
     if (!header) return;
     
     header.addEventListener('mousedown', (e) => {
-      // Ignore if clicking buttons inside header
       if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
       
       e.preventDefault();
@@ -97,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const offsetX = e.clientX - rect.left;
       const offsetY = e.clientY - rect.top;
 
-      // Switch to absolute positioning relative to viewport
       modal.style.transform = 'none';
       modal.style.left = rect.left + 'px';
       modal.style.top = rect.top + 'px';
@@ -126,6 +122,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const [y, m, d] = parts;
     return `${d}/${m}/${y}`;
   }
+  function formatDateTime(iso) {
+    if (!iso) return '';
+    let datePart = iso;
+    let timePart = '';
+    if (iso.includes(' ')) {
+      [datePart, timePart] = iso.split(' ');
+    } else if (iso.includes('T')) {
+      [datePart, timePart] = iso.split('T');
+    }
+
+    const parts = datePart.split('-');
+    if (parts.length !== 3) return iso;
+    const [y, m, d] = parts;
+
+    let timeStr = '';
+    if (timePart) {
+      const [hh, mm] = timePart.split(':');
+      if (hh && mm) timeStr = ` ${hh}:${mm}`;
+    }
+
+    return `${d}/${m}/${y}${timeStr}`;
+  }
   function priorityInfo(p) {
     const v = (p || '').toLowerCase();
     if (v.startsWith('ba') || v === 'low') return { label: 'LOW', cls: 'low' };
@@ -135,30 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   function renderTaskCard(task) {
     const canDelete = currentUserId && task.created_by === currentUserId;
-
-    // Helper: format date time
-    const formatDateTime = (iso) => {
-        if (!iso) return '';
-        let datePart = iso;
-        let timePart = '';
-        if (iso.includes(' ')) {
-            [datePart, timePart] = iso.split(' ');
-        } else if (iso.includes('T')) {
-            [datePart, timePart] = iso.split('T');
-        }
-        
-        const parts = datePart.split('-');
-        if (parts.length !== 3) return iso;
-        const [y, m, d] = parts;
-        
-        let timeStr = '';
-        if (timePart) {
-            const [hh, mm] = timePart.split(':');
-            timeStr = ` ${hh}:${mm}`;
-        }
-        
-        return `${d}/${m}/${y}${timeStr}`;
-    };
 
     // Helper: render comments list
     const renderCommentsList = (comments) => {
@@ -181,6 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (task.status === 'Completed' || task.status === 'completed') {
       const el = document.createElement('div');
       el.className = 'task-card completed';
+      const issued = formatDateTime(task.created_at || task.createdAt || '');
       el.innerHTML = `
         <div class="card-header-row">
           <span class="status-badge">COMPLETATO</span>
@@ -188,6 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div class="title">${task.title}</div>
         ${task.description ? `<div class="desc-box" style="font-size:0.9rem;">${task.description}</div>` : ''}
+        ${issued ? `<div class="issue-box"><span class="icon">🗓</span><span class="date">Emessa: ${issued}</span></div>` : ''}
         <div class="card-comments-container">
           ${renderCommentsList(task.comments)}
         </div>
@@ -200,6 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const { label, cls } = priorityInfo(task.priority);
     const due = formatDate(task.due_date || task.dueDate || '');
+    const issued = formatDateTime(task.created_at || task.createdAt || '');
     const isAssignedToOther = currentUserId && task.user_id && task.user_id !== currentUserId;
     
     const el = document.createElement('div');
@@ -222,6 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ${assignedBadge}
       <div class="title">${task.title}</div>
       ${task.description ? `<div class="desc-box">${task.description}</div>` : ''}
+      ${issued ? `<div class="issue-box"><span class="icon">🗓</span><span class="date">Emessa: ${issued}</span></div>` : ''}
       ${due ? `<div class="due-box"><span class="icon">📅</span><span class="date">${due}</span></div>` : ''}
       <div class="divider"></div>
       <div class="actions">
@@ -367,6 +365,9 @@ document.addEventListener('DOMContentLoaded', () => {
     f.elements['title'].value = task.title;
     f.elements['description'].value = task.description || '';
     f.elements['status'].value = task.status;
+    if (f.elements['issueDate']) {
+      f.elements['issueDate'].value = formatDateTime(task.created_at || task.createdAt || '');
+    }
     
     // Map old Italian values to new English values for the dropdown
     let p = task.priority || '';
@@ -727,6 +728,11 @@ document.addEventListener('DOMContentLoaded', () => {
     newTaskButton.addEventListener('click', (e) => {
       e.preventDefault();
       loadUsers();
+      const issueDateEl = document.getElementById('newTaskIssueDate');
+      if (issueDateEl) {
+        const todayIso = new Date().toISOString().slice(0, 10);
+        issueDateEl.value = formatDate(todayIso);
+      }
       openModal(newTaskModal, newTaskBackdrop);
     });
   }

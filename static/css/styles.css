@@ -152,7 +152,7 @@ body.dark .btn:hover {
   justify-content: space-between;
   padding: 12px 16px;
   border-bottom: 1px solid var(--border);
-  cursor: grab; /* Indica che si può spostare */
+  cursor: grab;
 }
 .modal-header:active {
   cursor: grabbing;
@@ -162,8 +162,8 @@ body.dark .btn:hover {
   display: grid;
   gap: 10px;
   padding: 12px 16px;
-  max-height: 70vh; /* Richiesta utente: max 70% finestra */
-  overflow-y: auto; /* Scroll verticale se necessario */
+  max-height: 70vh;
+  overflow-y: auto;
 }
 
 .modal-body label {
@@ -207,7 +207,6 @@ body.dark .btn:hover {
   color: var(--text, #222);
 }
 
-/* Stili per Analisi e Note (Richiesta Utente) */
 .analysis-item {
   background: var(--bg);
   border: 1px solid var(--border);
@@ -283,6 +282,15 @@ body.dark .analysis-note {
   border-radius: 10px;
 }
 .task-card .due-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border, #e6e6e6);
+  border-radius: 10px;
+  padding: 8px 10px;
+  margin-top: 10px;
+}
+.task-card .issue-box {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -826,4 +834,3 @@ body.dark .inline-comment-meta {
   align-items: center;
   gap: 6px;
 }
-
