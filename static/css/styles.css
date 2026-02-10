@@ -152,12 +152,18 @@ body.dark .btn:hover {
   justify-content: space-between;
   padding: 12px 16px;
   border-bottom: 1px solid var(--border);
+  cursor: grab; /* Indica che si può spostare */
+}
+.modal-header:active {
+  cursor: grabbing;
 }
 
 .modal-body {
   display: grid;
   gap: 10px;
   padding: 12px 16px;
+  max-height: 70vh; /* Richiesta utente: max 70% finestra */
+  overflow-y: auto; /* Scroll verticale se necessario */
 }
 
 .modal-body label {
@@ -200,6 +206,34 @@ body.dark .btn:hover {
   padding: 14px;
   color: var(--text, #222);
 }
+
+/* Stili per Analisi e Note (Richiesta Utente) */
+.analysis-item {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+}
+.analysis-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 500;
+}
+.analysis-note {
+  margin-top: 6px;
+  padding: 6px 10px;
+  background: rgba(0,0,0,0.04);
+  border-left: 3px solid var(--primary);
+  font-size: 0.9rem;
+  color: var(--text);
+  border-radius: 0 4px 4px 0;
+}
+body.dark .analysis-note {
+  background: rgba(255,255,255,0.05);
+}
+
 .task-card .card-top {
   display: grid;
   grid-template-columns: 24px 1fr 24px;

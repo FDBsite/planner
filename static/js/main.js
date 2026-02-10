@@ -75,7 +75,48 @@ document.addEventListener('DOMContentLoaded', () => {
     modal.hidden = true;
     backdrop.hidden = true;
     document.body.style.overflow = '';
+    // Reset position on close
+    modal.style.top = '';
+    modal.style.left = '';
+    modal.style.transform = '';
+    modal.style.margin = '';
   }
+
+  // Draggable Modals
+  document.querySelectorAll('.modal').forEach(modal => {
+    const header = modal.querySelector('.modal-header');
+    if (!header) return;
+    
+    header.addEventListener('mousedown', (e) => {
+      // Ignore if clicking buttons inside header
+      if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+      
+      e.preventDefault();
+      
+      const rect = modal.getBoundingClientRect();
+      const offsetX = e.clientX - rect.left;
+      const offsetY = e.clientY - rect.top;
+
+      // Switch to absolute positioning relative to viewport
+      modal.style.transform = 'none';
+      modal.style.left = rect.left + 'px';
+      modal.style.top = rect.top + 'px';
+      modal.style.margin = '0';
+
+      function onMouseMove(e) {
+        modal.style.left = (e.clientX - offsetX) + 'px';
+        modal.style.top = (e.clientY - offsetY) + 'px';
+      }
+
+      function onMouseUp() {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+      }
+
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    });
+  });
 
   // Helpers formattazione task
   function formatDate(iso) {
